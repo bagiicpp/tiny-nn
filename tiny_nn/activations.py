@@ -10,3 +10,9 @@ def relu_backward(Z, dA):
     dZ = dA * (Z > 0)
 
     return dZ
+
+def relu_forward(Z):
+    if Z.ndim != 2:
+        raise ValueError("Array must be 2-dimensional")
+
+    return np.maximum(Z, 0)
