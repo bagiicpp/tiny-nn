@@ -28,11 +28,15 @@ def dense_backward_weights(dZ, x):
     if x.ndim != 2:
         raise ValueError("Array must be 2 dimensional")
 
-    if x.shape[1] != 1 or dZ.shape[1] != 1:
-        raise ValueError("Arrays must have only one column.")
+    if dZ.shape[1] != x.shape[1]:
+        raise ValueError("Arrays must have the same number of columns")
 
-    if dZ.shape[0] <= 0 or x.shape[0] <= 0:
-        raise ValueError("Arrays must have at least one row.")
+    if dZ.shape[1] == 0 or dZ.shape[0] == 0:
+        raise ValueError("dZ is not empty")
+
+
+    if x.shape[1] == 0 or x.shape[0] == 0:
+        raise ValueError("x is not empty")
 
     dW = dZ @ x.T
     return dW
@@ -42,10 +46,7 @@ def dense_backward_bias(dZ):
     if dZ.ndim != 2:
         raise ValueError("Array must be 2 dimensional")
 
-    if dZ.shape[0] <= 0 or dZ.shape[1] != 1:
-        raise ValueError("Array must have only one column, and at least 1 row.")
-
-    db = dZ
+    db = np.sum(dZ, axis=1, keepdims=True)
     return db
 
 
@@ -63,14 +64,15 @@ def dense_backward_inputs(W, dZ):
     if dZ.shape[0] <= 0 or dZ.shape[1] <= 0:
         raise ValueError("dZ array must be positive.")
 
-    if dZ.shape[1] != 1:
-        raise ValueError("dZ must have exactly one column.")
-
     dX = W.T @ dZ
     return dX
 
 
 def dense_backward(W, x, dZ):
+
+    if W.shape[1] != x.shape[0]:
+        raise ValueError("Input feature dimensions must match")
+
     dW = dense_backward_weights(dZ, x)
     db = dense_backward_bias(dZ)
     dX = dense_backward_inputs(W, dZ)
